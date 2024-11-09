@@ -48,3 +48,12 @@ If you're adding a *wireless* controller to the mix, plug that one into the high
 - **Port:** 1
 - **Name:** 'pingpongbots'
 - **Link Type:** is determined at the start of the program, using the controller.
+
+# To Do
+
+The Event API doesn't seem to be working as expected. (I'm thinking it's user error,) so the code works around the use of Threads. There are a few things that need to be examined.
+
+I'm not sure how else to pause the main thread for input, so we'll see if a thread works for that.
+We can also see if a thread can be used to create the VEXlinks. 
+
+If there's a way to detect if there's already a VEXlink Manager, though, we could skip the input issue altogether. VEXbots trying to connect to the same "network" can run as a worker instead.

@@ -19,11 +19,13 @@ brain.screen.new_line()
 # Establish a controller - this is used for VEXlink setup
 controller = Controller()
 
-# Event callback to call to wait for input, please thanks
-def wait_for_input(action):
-    brain.screen.print('Waiting for input I guess?')
-    wait(2,TimeUnits.SECONDS)
-    action()
+# Thread to watch for input
+def input_thread_callback():
+    brain.screen.print('Hello from Input thread!')
+    wait(5,TimeUnits.SECONDS)
+    brain.screen.print('5 second timer ended')
+
+input_thread = Thread(input_thread_callback)
 
 # Function used to create VEXlinks
 def establish_VEXlink():
@@ -40,13 +42,6 @@ def establish_VEXlink():
     #     controller.screen.new_line()
     #     type = VexlinkType.MANAGER
     #     button_not_pressed = False
-
-    def hullo():
-        brain.screen.print("Hello! Input Event called.")
-
-    # input_event = Event(wait_for_input,(est_link_type))
-    input_event = Event(wait_for_input, (hullo,))
-    input_event.broadcast_and_wait()
 
     #while button_not_pressed:
     #   controller.buttonB.pressed(est_manager)
@@ -73,10 +68,6 @@ def on_pinged(link):
 # respond to pong message
 def on_ponged():
     brain.screen.print("Pong! Stopping here.")
-
-## TODO: create some sorta menu that let's you set the link type
-# then move all the communication code elswhere
-
 
 link = establish_VEXlink()
 
