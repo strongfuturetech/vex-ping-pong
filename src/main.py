@@ -53,8 +53,8 @@ def establish_VEXlink(creation_flag):
         return False
 
     new_link = MessageLink(Ports.PORT1, 'pingpongbots', type)
-    brain.screen.new_line()
     brain.screen.print('Complete!')
+    brain.screen.new_line()
     # wait(2, TimeUnits.SECONDS)
     # controller.screen.clear_screen()
     # brain.screen.clear_screen()
@@ -118,9 +118,12 @@ input_thread = Thread(input_thread_callback)
 
 link = establish_VEXlink(link_created)
 
-if link_created:
-    test_link_connection()
-    test_link_pairing()
-else:
-    brain.screen.print('Uh-oh, link creation failed somewhere.')
-    brain.screen.new_line()
+test_link_connection()
+test_link_pairing()
+
+# if link_created:
+#     test_link_connection()
+#     test_link_pairing()
+# else:
+#     brain.screen.print('Uh-oh, link creation failed somewhere.')
+#     brain.screen.new_line()
