@@ -52,7 +52,7 @@ def establish_VEXlink(creation_flag):
         brain.screen.print('Uh-oh: VEXlink type assignment failed.')
         return False
 
-    new_link = MessageLink(Ports.PORT1, 'pingpongbots', type)
+    new_link = MessageLink(Ports.PORT5, 'pingpongbots', type)
     brain.screen.print('Complete!')
     brain.screen.new_line()
     # wait(2, TimeUnits.SECONDS)
@@ -119,6 +119,9 @@ input_thread = Thread(input_thread_callback)
 link = establish_VEXlink(link_created)
 
 test_link_connection()
+test_link_pairing()
+
+wait(10,TimeUnits.SECONDS)
 test_link_pairing()
 
 # if link_created:

@@ -47,6 +47,6 @@ If you're adding a *wireless* controller to the mix, plug that one into the high
 
 **VEXlink Configuration**
 
-- **Port:** 1
+- **Port:** 5
 - **Name:** 'pingpongbots'
 - **Link Type:** is determined at the start of the program, using the controller.
