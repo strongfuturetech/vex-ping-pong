@@ -19,13 +19,15 @@ brain.screen.new_line()
 # Establish a controller - this is used for VEXlink setup
 controller = Controller()
 
-# "GLOBAL" FLAGS
-link_created = False
-other_bots_connected = False
+# Flags to keep track of certain events
+GLOBAL_FLAGS = {
+    "link_created": False,
+    "other_bots_connected": False
+}
 
 # Function used to create VEXlinks
-def establish_VEXlink(creation_flag):
-    brain.screen.print('Link creation status: ', creation_flag)
+def establish_VEXlink():
+    brain.screen.print('Link creation status: ', GLOBAL_FLAGS['link_created'])
     brain.screen.new_line()
     brain.screen.print('Press X to create a Manager Link.')
     brain.screen.new_line()
@@ -40,7 +42,7 @@ def establish_VEXlink(creation_flag):
             brain.screen.print('Creating a Manager Link...')
             brain.screen.new_line()
             type = VexlinkType.MANAGER
-            button_not_pressed = False  
+            button_not_pressed = False
         if controller.buttonB.pressing():
             brain.screen.print('Creating a Worker Link...')
             brain.screen.new_line()
@@ -55,11 +57,11 @@ def establish_VEXlink(creation_flag):
     new_link = MessageLink(Ports.PORT5, 'pingpongbots', type)
     brain.screen.print('Complete!')
     brain.screen.new_line()
-    # wait(2, TimeUnits.SECONDS)
+    wait(3, TimeUnits.SECONDS)
     # controller.screen.clear_screen()
-    # brain.screen.clear_screen()
-    creation_flag = True
-    brain.screen.print('Link creation status: ', creation_flag)
+    brain.screen.clear_screen()
+    GLOBAL_FLAGS['link_created'] = True # an event would be lovely here.
+    brain.screen.print('Link creation status: ', GLOBAL_FLAGS['link_created'])
     brain.screen.new_line()
     return new_link
 
@@ -83,7 +85,7 @@ def test_link_connection():
     is_connected = link.installed()
 
     if is_connected:
-        result = 'VEXLink is connected to Port 1.'
+        result = 'VEXLink is connected to correct port.'
     else:
         result = 'VEXLink is not connected!'
 
@@ -106,27 +108,25 @@ def test_link_pairing():
 
 # ========== Program Threads ========== #
 
-# Thread to handle creation of VexLink
-def input_thread_callback():
-    brain.screen.print('Hello from Input thread!')
+# Test thread
+def test_thread_callback():
+    brain.screen.print('Hello from Test thread!')
     brain.screen.new_line()
     wait(5,TimeUnits.SECONDS)
     brain.screen.print('5 second timer ended')
     brain.screen.new_line()
 
-input_thread = Thread(input_thread_callback)
+test_thread = Thread(test_thread_callback)
 
-link = establish_VEXlink(link_created)
+link = establish_VEXlink()
 
-test_link_connection()
-test_link_pairing()
+if GLOBAL_FLAGS['link_created']:
+    test_link_connection()
+    test_link_pairing()
+else:
+    brain.screen.print('Uh-oh, link creation failed somewhere.')
+    brain.screen.new_line()
 
+# check again for other connected bots
 wait(10,TimeUnits.SECONDS)
 test_link_pairing()
-
-# if link_created:
-#     test_link_connection()
-#     test_link_pairing()
-# else:
-#     brain.screen.print('Uh-oh, link creation failed somewhere.')
-#     brain.screen.new_line()
