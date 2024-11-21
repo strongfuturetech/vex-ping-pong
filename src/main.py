@@ -13,9 +13,6 @@ from vex import *
 # Brain should be defined by default
 brain=Brain()
 
-brain.screen.print("Hello V5")
-brain.screen.new_line()
-
 # Establish a controller - this is used for VEXlink setup
 controller = Controller()
 
@@ -60,7 +57,7 @@ def establish_VEXlink():
     wait(3, TimeUnits.SECONDS)
     # controller.screen.clear_screen()
     brain.screen.clear_screen()
-    GLOBAL_FLAGS['link_created'] = True # an event would be lovely here.
+    GLOBAL_FLAGS['link_created'] = True # FIX: an event would be lovely here.
     brain.screen.print('Link creation status: ', GLOBAL_FLAGS['link_created'])
     brain.screen.new_line()
     return new_link
@@ -100,6 +97,7 @@ def test_link_pairing():
 
     if is_brain_linked:
         result = 'Bots connected to this VEXlink can communicate.'
+        GLOBAL_FLAGS['other_bots_connected'] = True
     else:
         result = 'VEXLink is not paired!'
 
@@ -108,15 +106,7 @@ def test_link_pairing():
 
 # ========== Program Threads ========== #
 
-# Test thread
-def test_thread_callback():
-    brain.screen.print('Hello from Test thread!')
-    brain.screen.new_line()
-    wait(5,TimeUnits.SECONDS)
-    brain.screen.print('5 second timer ended')
-    brain.screen.new_line()
-
-test_thread = Thread(test_thread_callback)
+# Create VEXLink and begin testing thread
 
 link = establish_VEXlink()
 
@@ -127,6 +117,19 @@ else:
     brain.screen.print('Uh-oh, link creation failed somewhere.')
     brain.screen.new_line()
 
-# check again for other connected bots
-wait(10,TimeUnits.SECONDS)
-test_link_pairing()
+# Thread for continually testing VEXlink connection
+def test_thread_callback():
+    brain.screen.print('Hello from VEXLink Testing thread!')
+    brain.screen.new_line()
+
+    # TODO: a counter might fit in here nicely
+    
+    while GLOBAL_FLAGS['other_bots_connected'] == False:
+        wait(7,TimeUnits.SECONDS)
+        test_link_pairing()
+    
+    # TODO: send a signal to close the thread when other are bots detected
+
+test_thread = Thread(test_thread_callback)
+
+# TODO: close the testing thread on a signal.
