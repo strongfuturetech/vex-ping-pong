@@ -80,11 +80,13 @@ def message_received():
 # respond to ping message
 def on_pinged(link):
     brain.screen.print("Pinged!")
+    brain.screen.new_line()
     link.send('pong')
 
 # respond to pong message
 def on_ponged():
     brain.screen.print("Pong! Stopping here.")
+    brain.screen.new_line()
 
 # ========== VEXLink testing functions ========== #
 
@@ -147,12 +149,16 @@ test_thread = Thread(test_thread_callback)
 
 # TODO: close the testing thread on a signal.
 
-# Start talking.
-brain.screen.clear_screen()
+# Start talking...
+# FIX: ...After 10 seconds, until we can get events in order.
+# brain.screen.clear_screen()
 link.received(message_received)
+
+wait(10,TimeUnits.SECONDS)
 
 for i in range(3):
     brain.screen.print('Pinging...')
+    brain.screen.new_line()
     link.send('ping')
     wait(4,TimeUnits.SECONDS)
     
