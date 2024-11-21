@@ -32,7 +32,7 @@ Otherwise: just plug the controller into a Smart Port **or** use another smart c
 
 ### Configuration
 
-Plug the radio into a free Smart Port on the brain. This project uses `Port 1`.
+Plug the radio into a free Smart Port on the brain. This project uses `Port 5`.
 
 If you're adding a *wireless* controller to the mix, plug that one into the highest port number. If not, plug in into another port on the brain. We'll briefly use the controllers to setup the VEXLinks on the bots.
 
