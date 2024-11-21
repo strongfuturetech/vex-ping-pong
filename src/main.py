@@ -64,6 +64,19 @@ def establish_VEXlink():
 
 # ========== VEXLink messaging functions ========== #
 
+# callback for any message received
+def message_received():
+    brain.screen.print("Message received!")
+    brain.screen.new_line()
+    msg = link.receive(500)
+    brain.screen.print(msg)
+    brain.screen.new_line()
+
+    if msg == 'ping':
+        on_pinged(link)
+    if msg == 'pong':
+        on_ponged()
+
 # respond to ping message
 def on_pinged(link):
     brain.screen.print("Pinged!")
@@ -133,3 +146,13 @@ def test_thread_callback():
 test_thread = Thread(test_thread_callback)
 
 # TODO: close the testing thread on a signal.
+
+# Start talking.
+brain.screen.clear_screen()
+link.received(message_received)
+
+for i in range(3):
+    brain.screen.print('Pinging...')
+    link.send('ping')
+    wait(4,TimeUnits.SECONDS)
+    
