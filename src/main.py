@@ -16,6 +16,11 @@ brain=Brain()
 # Establish a controller - this is used for VEXlink setup
 controller = Controller()
 
+# ========== Utilities ========== #
+
+# Change this if you're using different ports for the VEXlink
+LINK_PORT = Ports.PORT5
+
 # Flags to keep track of certain events
 GLOBAL_FLAGS = {
     "link_created": False,
@@ -74,7 +79,7 @@ def establish_VEXlink():
         brain.screen.print('Uh-oh: VEXlink type assignment failed.')
         return False
 
-    new_link = MessageLink(Ports.PORT5, 'pingpongbots', type)
+    new_link = MessageLink(LINK_PORT, 'pingpongbots', type)
     log_color('success')
     brain.screen.print('Complete!')
     brain.screen.new_line()
