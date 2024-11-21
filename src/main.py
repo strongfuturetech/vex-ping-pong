@@ -59,6 +59,7 @@ def establish_VEXlink():
             brain.screen.print('Creating a Manager Link...')
             brain.screen.new_line()
             type = VexlinkType.MANAGER
+            GLOBAL_FLAGS['is_manager'] = True
             button_not_pressed = False
         if controller.buttonB.pressing():
             log_color('worker')
@@ -80,6 +81,7 @@ def establish_VEXlink():
     wait(3, TimeUnits.SECONDS)
     # controller.screen.clear_screen()
     brain.screen.clear_screen()
+    brain.screen.set_cursor(1,1)
     GLOBAL_FLAGS['link_created'] = True # FIX: an event would be lovely here.
     log_color('')
     brain.screen.print('Link creation status: ', GLOBAL_FLAGS['link_created'])
