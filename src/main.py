@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
 # 	Module:       main.py                                                      #
-# 	Author:       Strong Future User                                           #
+# 	Author:       Strong Future Tech Training Center                           #
 # 	Created:      10/31/2024, 1:24:51 PM                                       #
 # 	Description:  Bot-to-bot communication example using MessageLink           #
 #                                                                              #
