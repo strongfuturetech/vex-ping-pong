@@ -11,12 +11,10 @@
 from vex import *
 
 # Brain should be defined by default
-brain=Brain()
+brain = Brain()
 
-# Establish a controller - this is used for VEXlink setup
+# A controller is used for VEXlink setup
 controller = Controller()
-
-# ========== Utilities ========== #
 
 # Change this if you're using different ports for the VEXlink
 LINK_PORT = Ports.PORT5
@@ -25,11 +23,33 @@ LINK_PORT = Ports.PORT5
 GLOBAL_FLAGS = {
     "link_created": False,
     "other_bots_connected": False,
-    "is_manager": False
+    "is_manager": False,
+    "watch_screen": True,
+    "screen_full": False
 }
 
-# Shorthand to colorize all brain.screen logging for readability.
-def log_color(context):
+# ========== Screen Utilities ========== #
+
+SCREEN_LINES = {
+    'MAX': 12,
+    'current': 0
+}
+
+def is_screen_full():
+    if SCREEN_LINES['current'] >= SCREEN_LINES['MAX']:
+        return True
+    else:
+        return False
+
+# Clear screen and reset cursor like you'd expect from a console.
+def clear_screen():
+    brain.screen.clear_screen()
+    brain.screen.set_cursor(1,1)
+    SCREEN_LINES['current'] = 0
+    GLOBAL_FLAGS['screen_full'] = False
+
+# Colorize all brain.screen logging based on context
+def log_color(context: str):
     if context == "info" or context == "i":
         if GLOBAL_FLAGS['is_manager']:
             brain.screen.set_pen_color(Color.BLUE)
@@ -44,62 +64,62 @@ def log_color(context):
     else:
         brain.screen.set_pen_color(Color.WHITE)
 
-# Function used to create VEXlinks
+# Screen logging wrapper -- uses contextual coloring
+def log_line(*args, context=''):
+    log_color(context)
+    brain.screen.print(*args)
+    brain.screen.new_line()
+    SCREEN_LINES['current'] += 1
+
+# Screen logging wrapper that takes a Color object instead
+def log_line_in_color(color: Color, *args):
+    if type(color) is not Color:
+        color = Color.WHITE
+    
+    brain.screen.set_pen_color(color)
+    brain.screen.print(*args)
+    brain.screen.new_line()
+    SCREEN_LINES['current'] += 1
+
+# ========== VEXLink creation function ========== #
+
 def establish_VEXlink():
-    brain.screen.print('Link creation status: ', GLOBAL_FLAGS['link_created'])
-    brain.screen.new_line()
-    brain.screen.set_pen_color(Color.BLUE)
-    brain.screen.print('Press X to create a Manager Link.')
-    brain.screen.new_line()
-    brain.screen.set_pen_color(Color.PURPLE)
-    brain.screen.print('Press B to create a Worker instead.')
-    brain.screen.new_line()
+    log_line('Link creation status: ', GLOBAL_FLAGS['link_created'])
+    log_line_in_color(Color.BLUE, 'Press X to create a Manager Link.')
+    log_line_in_color(Color.PURPLE, 'Press B to create a Worker instead.')
 
     type = None
     button_not_pressed = True
 
     while button_not_pressed:
         if controller.buttonX.pressing():
-            log_color('mgr')
-            brain.screen.print('Creating a Manager Link...')
-            brain.screen.new_line()
-            type = VexlinkType.MANAGER
             GLOBAL_FLAGS['is_manager'] = True
+            log_line('Creating a Manager Link...', context='info')
+            type = VexlinkType.MANAGER
             button_not_pressed = False
         if controller.buttonB.pressing():
-            log_color('worker')
-            brain.screen.print('Creating a Worker Link...')
-            brain.screen.new_line()
+            log_line('Creating a Worker Link...', context='info')
             type = VexlinkType.WORKER
             button_not_pressed = False
     
     if type == None:
         # something happened
-        log_color('error')
-        brain.screen.print('Uh-oh: VEXlink type assignment failed.')
+        log_line('Uh-oh: VEXlink type assignment failed.', context='error')
         return False
 
     new_link = MessageLink(LINK_PORT, 'pingpongbots', type)
-    log_color('success')
-    brain.screen.print('Complete!')
-    brain.screen.new_line()
+    log_line('Complete!', context='success')
     wait(3, TimeUnits.SECONDS)
-    # controller.screen.clear_screen()
-    brain.screen.clear_screen()
-    brain.screen.set_cursor(1,1)
+    clear_screen()
     GLOBAL_FLAGS['link_created'] = True # FIX: an event would be lovely here.
-    log_color('')
-    brain.screen.print('Link creation status: ', GLOBAL_FLAGS['link_created'])
-    brain.screen.new_line()
+    log_line('Link creation status: ', GLOBAL_FLAGS['link_created'])
     return new_link
 
 # ========== VEXLink messaging functions ========== #
 
 # callback for any message received
 def message_received():
-    log_color('info')
-    brain.screen.print("Message received!")
-    brain.screen.new_line()
+    log_line('Message received!', context='info')
     msg = link.receive(500)
     brain.screen.print(msg) # keeps returning as None... does this even go here?
     brain.screen.new_line()
@@ -110,17 +130,13 @@ def message_received():
         on_ponged()
 
 # respond to ping message
-def on_pinged(link):
-    log_color('info')
-    brain.screen.print("Pinged!")
-    brain.screen.new_line()
+def on_pinged(link: MessageLink):
+    log_line('Pinged!', context='info')
     link.send('pong')
 
 # respond to pong message
 def on_ponged():
-    log_color('info')
-    brain.screen.print("Pong! Stopping here.")
-    brain.screen.new_line()
+    log_line('Pong! Stopping here.')
 
 # ========== VEXLink testing functions ========== #
 
@@ -131,14 +147,13 @@ def test_link_connection():
     is_connected = link.installed()
 
     if is_connected:
-        log_color('success')
+        ctx = 'success'
         result = 'VEXLink is connected to correct port.'
     else:
-        log_color('error')
+        ctx = 'error'
         result = 'VEXLink is not connected!'
 
-    brain.screen.print(result)
-    brain.screen.new_line()
+    log_line(result,context=ctx)
 
 def test_link_pairing():
     # check if we're paired with the Brain
@@ -147,35 +162,41 @@ def test_link_pairing():
     is_brain_linked = link.is_linked()
 
     if is_brain_linked:
-        log_color('success')
+        ctx = 'success'
         result = 'Bots connected to this VEXlink can communicate.'
         GLOBAL_FLAGS['other_bots_connected'] = True
     else:
-        log_color('error')
+        ctx = 'error'
         result = 'VEXLink is not paired!'
 
-    brain.screen.print(result)
-    brain.screen.new_line()
+    log_line(result,context=ctx)
 
 # ========== Program Threads ========== #
 
-# Create VEXLink and begin testing thread
+# start watching the screen
+def screen_watching_task():
+    # if GLOBAL_FLAGS['watch_screen']:
+    #     log_line_in_color(Color.ORANGE, 'Watching the screen!')
+    
+    while GLOBAL_FLAGS['watch_screen']:
+        if is_screen_full():
+            wait(1,TimeUnits.SECONDS)
+            clear_screen()
 
+screen_watcher = Thread(screen_watching_task)
+
+# Create VEXLink and begin testing thread
 link = establish_VEXlink()
 
 if GLOBAL_FLAGS['link_created']:
     test_link_connection()
     test_link_pairing()
 else:
-    log_color('')
-    brain.screen.print('Uh-oh, link creation failed somewhere.')
-    brain.screen.new_line()
+    log_line('Uh-oh, link creation failed somewhere.')
 
 # Thread for continually testing VEXlink connection
 def test_thread_callback():
-    brain.screen.set_pen_color(Color.CYAN)
-    brain.screen.print('Hello from VEXLink Testing thread!')
-    brain.screen.new_line()
+    log_line_in_color(Color.CYAN, 'Hello from VEXLink Testing thread!')
 
     # TODO: a counter might fit in here nicely
     
@@ -197,9 +218,6 @@ link.received(message_received)
 wait(10,TimeUnits.SECONDS)
 
 for i in range(3):
-    log_color('info')
-    brain.screen.print('Pinging...')
-    brain.screen.new_line()
+    log_line('Pinging...', context='info')
     link.send('ping')
     wait(4,TimeUnits.SECONDS)
-    
